@@ -19,19 +19,75 @@ func errorFatal(err error) {
 func main() {
 	conn, err := connection.GetConnection("localhost", "postgres", "postgres", "postgres", "5432")
 	errorFatal(err)
-	_ = conn
-	//CreateTask(conn)
+	//_ = conn
+
+	var option, id int
+	MenuOptions()
+	for {
+		fmt.Scan(&option)
+		if option == 0 {
+			fmt.Println("Good bye!")
+			break
+		}
+		switch option {
+		case 1:
+			CreateTask(conn)
+			MenuOptions()
+		case 2:
+			ReadTask(conn)
+			MenuOptions()
+		case 3:
+			fmt.Printf("Enter the ID to search task: ")
+			fmt.Scan(&id)
+			searchTask := ReadTaskByID(conn, id)
+			if searchTask.ID != 0 {
+				fmt.Println(searchTask)
+			}
+			MenuOptions()
+		case 4:
+			var statusUser int
+			var textTask string
+			var status bool
+
+			fmt.Printf("Enter the ID to update task: ")
+			fmt.Scanln(&id)
+
+			fmt.Printf("\nEnter task to update to do: ")
+			fmt.Scan(&textTask)
+
+			fmt.Printf("\nEnter the new status (0 = Done, 1 = To do): ")
+			fmt.Scanln(&statusUser)
+			if statusUser == 0 {
+				status = true
+			} else {
+				status = false
+			}
+
+			searchTask := ReadTaskByID(conn, id)
+			if searchTask.ID != 0 {
+				UpdateTask(conn, id, textTask, status, time.Now())
+				//fmt.Println(ReadTaskByID(conn, id))
+			}
+			MenuOptions()
+		case 5:
+		default:
+			MenuOptions()
+		}
+	}
+
+	/*CreateTask(conn)
 	fmt.Println("-----------")
 	ReadTask(conn)
 	fmt.Println("-----------")
 	ReadTaskByID(conn, 11)
 	fmt.Println("-----Update table------")
-	UpdateTask(conn, 11, "Esta tarea se modifico", false, time.Now())
+
 	ReadTaskByID(conn, 11)
 	fmt.Println("-----Delete task------")
 	DeleteTask(conn, 1)
 	ReadTask(conn)
-	fmt.Println("Connected to BD")
+	fmt.Println("Connected to BD")*/
+
 }
 
 func CreateTask(conn *gorm.DB) {
@@ -58,8 +114,7 @@ func ReadTask(conn *gorm.DB) {
 	}
 }
 
-func ReadTaskByID(conn *gorm.DB, id int) {
-	var task models.TodoList
+func ReadTaskByID(conn *gorm.DB, id int) (task models.TodoList) {
 	r := conn.Where("ID=?", id).Limit(1).Find(&task)
 	if r.Error != nil {
 		fmt.Println(r.Error)
@@ -67,9 +122,9 @@ func ReadTaskByID(conn *gorm.DB, id int) {
 	}
 	if r.RowsAffected == 0 {
 		fmt.Printf("Not exist task with the ID %d\n", id)
-		return
+		task = models.TodoList{}
 	}
-	fmt.Println(task)
+	return task
 }
 
 func UpdateTask(conn *gorm.DB, id int, taskTxt string, status bool, dueDate time.Time) {
@@ -90,4 +145,8 @@ func DeleteTask(conn *gorm.DB, id int) {
 	if r.RowsAffected == 0 {
 		fmt.Printf("No deleted task with the ID %d\n", id)
 	}
+}
+
+func MenuOptions() {
+	fmt.Printf("\n*** Menu To Do List ***\n1 - Create task\n2 - Search all task\n3 - Search task\n4 - Update task\n5 - Delete task\n0 - Exit\n***********************\n\nSelect Option: ")
 }
