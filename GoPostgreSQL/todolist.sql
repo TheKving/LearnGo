@@ -5,7 +5,7 @@ listar usuario \d
 */
 DROP DATABASE IF EXISTS postgres;
 CREATE DATABASE postgres;
-DROP TABLE todo_list;
+DROP TABLE IF EXISTS todo_list;
 CREATE TABLE todo_list (
   id SERIAL PRIMARY KEY,
   task VARCHAR(255) NOT NULL,

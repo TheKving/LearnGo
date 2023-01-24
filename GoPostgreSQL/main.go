@@ -31,7 +31,8 @@ func main() {
 		}
 		switch option {
 		case 1:
-			CreateTask(conn)
+			CreateTask(conn, "New Task by program", true, time.Now())
+			//CreateTask(conn *gorm.DB, task string, status bool, duedate time.Time)
 			MenuOptions()
 		case 2:
 			ReadTask(conn)
@@ -57,10 +58,10 @@ func main() {
 
 			fmt.Printf("\nEnter the new status (0 = Done, 1 = To do): ")
 			fmt.Scanln(&statusUser)
-			if statusUser == 0 {
-				status = true
-			} else {
+			if statusUser != 0 {
 				status = false
+			} else {
+				status = true
 			}
 
 			searchTask := ReadTaskByID(conn, id)
@@ -70,27 +71,27 @@ func main() {
 			}
 			MenuOptions()
 		case 5:
+			fmt.Printf("ID to delete task: ")
+			fmt.Scan(&id)
+			DeleteTask(conn, id)
+			MenuOptions()
 		default:
 			MenuOptions()
 		}
 	}
-
-	/*CreateTask(conn)
-	fmt.Println("-----------")
-	ReadTask(conn)
-	fmt.Println("-----------")
-	ReadTaskByID(conn, 11)
-	fmt.Println("-----Update table------")
-
-	ReadTaskByID(conn, 11)
-	fmt.Println("-----Delete task------")
-	DeleteTask(conn, 1)
-	ReadTask(conn)
-	fmt.Println("Connected to BD")*/
-
 }
 
-func CreateTask(conn *gorm.DB) {
+func CreateTask(conn *gorm.DB, task string, status bool, dueDate time.Time) {
+	// Llamamos al struct TodoList, le pasamos los parámetros que hay que rellenar.
+	newTask := models.TodoList{Task: task, Status: status, DueDate: dueDate}
+
+	res := conn.Create(&newTask)
+	if res.Error != nil {
+		fmt.Println(res.Error)
+	}
+}
+
+/*func CreateTask(conn *gorm.DB) {
 	// Llamamos al struct TodoList, le pasamos los parámetros que hay que rellenar.
 	task := models.TodoList{Task: "Tarea 456", Status: true, DueDate: time.Now()}
 	tasknew := models.TodoList{Task: "Tarea 123", Status: true, DueDate: time.Date(2023, 01, 4, 15, 0, 0, 0, time.UTC)}
@@ -101,7 +102,7 @@ func CreateTask(conn *gorm.DB) {
 	if res.Error != nil {
 		fmt.Println(res.Error)
 	}
-}
+}*/
 
 func ReadTask(conn *gorm.DB) {
 	var task []models.TodoList
