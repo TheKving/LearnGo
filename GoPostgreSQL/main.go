@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"log"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/TheKving/LearnGo/tree/main/GoPostgreSQL/connection"
@@ -10,16 +12,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func errorFatal(err error) {
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-}
-
 func main() {
+	var err error
 	conn, err := connection.GetConnection("localhost", "postgres", "postgres", "postgres", "5432")
-	errorFatal(err)
-	//_ = conn
+	if err != nil {
+		panic(err)
+	}
 
 	var option, id int
 	MenuOptions()
@@ -31,7 +29,7 @@ func main() {
 		}
 		switch option {
 		case 1:
-			CreateTask(conn, "New Task by program", true, time.Now())
+			CreateTask(conn, "New Task by program", false, time.Now())
 			//CreateTask(conn *gorm.DB, task string, status bool, duedate time.Time)
 			MenuOptions()
 		case 2:
@@ -50,24 +48,31 @@ func main() {
 			var textTask string
 			var status bool
 
-			fmt.Printf("Enter the ID to update task: ")
-			fmt.Scanln(&id)
-
-			fmt.Printf("\nEnter task to update to do: ")
-			fmt.Scan(&textTask)
-
-			fmt.Printf("\nEnter the new status (0 = Done, 1 = To do): ")
-			fmt.Scanln(&statusUser)
-			if statusUser != 0 {
-				status = false
-			} else {
-				status = true
-			}
-
+			fmt.Printf("ID update task: ")
+			fmt.Scan(&id)
 			searchTask := ReadTaskByID(conn, id)
+
 			if searchTask.ID != 0 {
-				UpdateTask(conn, id, textTask, status, time.Now())
-				//fmt.Println(ReadTaskByID(conn, id))
+
+				fmt.Printf("\nNew task: ")
+				reader := bufio.NewReader(os.Stdin)
+				textTask, _ = reader.ReadString('\n')
+				//textTask = strings.TrimRight(textTask, "\n")
+				//fmt.Scanf("%s\n", &textTask)
+
+				fmt.Printf("\nStatus (0 = Done | 1 = To do): ")
+				fmt.Scanf("%d", &statusUser)
+				fmt.Println("El valor de statusUser es: ", statusUser)
+				if statusUser == 0 {
+					status = true
+					UpdateTask(conn, id, strings.TrimRight(textTask, "\n"), status, time.Now())
+				} else {
+					status = false
+					UpdateTask(conn, id, strings.TrimRight(textTask, "\n"), status, time.Now())
+				}
+
+				fmt.Println("El valor de status es: ", status)
+				//UpdateTask(conn, id, strings.TrimRight(textTask, "\n"), true, time.Now())
 			}
 			MenuOptions()
 		case 5:
@@ -130,7 +135,7 @@ func ReadTaskByID(conn *gorm.DB, id int) (task models.TodoList) {
 
 func UpdateTask(conn *gorm.DB, id int, taskTxt string, status bool, dueDate time.Time) {
 	var task = models.TodoList{Task: taskTxt, Status: status, DueDate: dueDate}
-	r := conn.Select("Task").Where("ID = ?", id).Updates(&task)
+	r := conn.Where("ID = ?", id).Updates(&task)
 	if r.Error != nil {
 		fmt.Println(r.Error)
 		return
