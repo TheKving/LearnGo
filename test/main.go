@@ -45,7 +45,7 @@ func main() {
 	errDomain := updateDomain.Run()
 
 	if errDomain != nil {
-		log.Fatal("Error update domain")
+		log.Fatal("[PROBLEM] at update domain")
 	}
 
 	//to do, get public ip address from other service
