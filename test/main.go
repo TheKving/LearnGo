@@ -38,7 +38,7 @@ func main() {
 			}
 		}
 	}
-	updateGoogleDomain := fmt.Sprintf("https://$%s:$%s@domains.google.com/nic/update?hostname=$%s&myip=$%s", username, password, hostname, ipAddress)
+	updateGoogleDomain := fmt.Sprintf("https://%s:%s@domains.google.com/nic/update?hostname=%s&myip=%s", username, password, hostname, ipAddress)
 	fmt.Println(updateGoogleDomain)
 
 	updateDomain := exec.Command("curl", updateGoogleDomain)
