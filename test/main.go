@@ -56,6 +56,6 @@ func main() {
 // Get random web to check the public ip address from server
 func randomWebCheckIpAddress() string {
 	rand.Seed(time.Now().UnixNano())
-	web := []string{"ifconfig.co1", "ifconfig.me", "icanhazip.com"}
+	web := []string{"ifconfig.co", "ifconfig.me", "icanhazip.com"}
 	return web[rand.Intn(len(web))]
 }
