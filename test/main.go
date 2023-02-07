@@ -55,6 +55,7 @@ func main() {
 	}
 
 	//to do, get public ip address from other service
+	//create log file for check if web is down or not work?
 	//update the dynamic ip address to google domain service with curl or other?
 	//test in production?
 }
