@@ -23,7 +23,6 @@ func main() {
 	password := os.Getenv("PASSWORD")
 	//Exec command hostname -f to obtain the hostname of server
 	hostname, _ := exec.Command("hostname", "-f").Output()
-	//hostname = string.TrimSpace(string(hostname))
 
 	//Obtain the public ip address of server
 	web := randomWebCheckIpAddress()
@@ -41,10 +40,8 @@ func main() {
 			}
 		}
 	}
-	hostname = []byte(strings.TrimSpace(string(hostname)))
-	ipAddress = []byte(strings.TrimSpace(string(ipAddress)))
-	//updateGoogleDomain := fmt.Sprintf("https://%s:%s@domains.google.com/nic/update?hostname=%s&myip=%s", username, password, string(hostname), string(ipAddress))
-	updateGoogleDomain := fmt.Sprintf("https://%s:%s@domains.google.com/nic/update?hostname=%s&myip=%s", username, password, hostname, ipAddress)
+	updateGoogleDomain := fmt.Sprintf("https://%s:%s@domains.google.com/nic/update?hostname=%s&myip=%s", username, password, []byte(strings.TrimSpace(string(hostname))), []byte(strings.TrimSpace(string(ipAddress))))
+
 	fmt.Println(updateGoogleDomain)
 
 	updateDomain := exec.Command("curl", updateGoogleDomain)
